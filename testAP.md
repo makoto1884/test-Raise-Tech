@@ -1,6 +1,6 @@
 1. rvm get head  
 >最新の状態にアップロード
-2. rvm list kwon  
+2. rvm list know  
 >ダウンロードできるものをリスト化  
 3. rvm install  指定ruby  
 >3.1.2を使用  
@@ -14,7 +14,7 @@
 
 6. datebase.yml 作成  
 >config内のdatebase.yml.sampleをdatabase,ymlにコピー  
->コピー完了後database.ymlにmysqlの>rootpassを入力  
+>コピー完了後database.ymlにmysqlのrootpassを入力  
 
 7.bundle関係について
 >bundle installとbundle execの違い
@@ -32,8 +32,7 @@
 - Gemfile.lockにないgemをGemfileから見つけた場合、そのgemをインストールする。  
 
 >bundle execコマンドはrailsアプリでインストールしたgemを指定して読みこんでくれる。  
->bundle execコマンドを使用  
->しなければシステム共通の  
+>bundle execコマンドを使用しなければシステム共通の  
 >ライブラリ保存場所を環境下にしてコマンドが実行されるので、bundle installでinstallしたgemのバージョンでないgemを使用する  
 >可能性があり結果としてgemが動かなくなる可能性がある。
 
