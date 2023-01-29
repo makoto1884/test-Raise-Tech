@@ -1,49 +1,63 @@
-# 第３回提出用課題  
-***１.*** 通信関係の動画視聴  
+# 第４回課題  
+## RDSの構築とEC2への接続  
 
-***2.*** ubuntuを使用したrailsインストールと実行（失敗）  
->あとでわかったが理由はセキュリティーグループのポート番号が原因  
+>> VPCやEC2インスタンスに関しては事前に学習と理解がある程度終わっていたため課題提出の際は復習程度のレベルですので割愛させていただきます。  
 
-***3.*** amozon linuxの構築に変更  
->（ubuntuを使用していなかった、基礎的な理解をしたかった）  
+1 RDS専用のセキュリティーグループ作成  
+2 プライベートサブネットを作成  
+>dbsubnetグループを作成するためには
+>異なるプライベートサブネットが必要。  
+>今回の場合 AZ  
+**ap-northeast-1a**  
+**ap-northeast-1c**を使用  
+サブネットのCIDRは異なる設定を実施。  
 
-***4.*** bundleの理解と使用方法  
+3. RDSのサブネットグループを作成  
+>vpcはメインvpc  
+>subnetはプライベートサブネットを２つ定義  
 
-***5.*** rbunvを使用したruby install  
+4. パラメーターグループとオプショングループを設定。
 
-***6.*** rails install  
+5. mysqlのRDSインスタンスの作成  
+> - 作成方法は「標準作成」  
+> - エンジンは「MySQL」  
+> - バージョンは8.0.28を選び
+テンプレートは「無料利用枠」  
+> - DBインスタンス識別子を設定後  
+> - マスターユーザー名、パスワードを登録  
+> - DBインスタンスサイズはdb.t2.microを選択  
+> - 「ストレージの自動スケーリングを有効にする」のチェックを外しておく  
+> - 「接続」では、作成済みのVPCを割り当て  
+> - サブネットグループは作成したグループを割り当て  
+> - セキュリティーグループではインバウンドルールにmysql通信を許可した
+ポート番号を割り当て  
+> - AZはap-northeast-1aを割り当て  
+> - データベースポートは3306  
+> - パラメーターグループとオプショングループを設定して作成  
 
-***7.*** mysql install pass設定と動作確認  
->installの際 Nothing to do と言われたため  
->wget コマンドで rpm パッケージを Amazon >Linux2 のローカルにダウンロードして実行  
->wget コマンドを使用して MySQL の RPM パッケージをダウンロード→rpm パッケージをインストール>>する
->→MySQL クライアント機能をインストール→バージョ>ン確認の順で実行
+6 ec2-userでmysqlをダウンロード  
+#### `sudo yum -y install mysql`  
+
+7 ec2からRDSへ接続  
+#### `mysql -h エンドポイントURL -u ユーザー名 -p`→失敗  
+
+8 問題の追求と対応  
+>問題は３つ考えられると推定  
+> - セキュリティーグループの設定ミス  
+> セキュリティグループsourceをwebserverで使用していたのが原因と推定  
+> ググってmysqlのセキュリティグループを作成したグループに設定  
+
+> - user.passミス  
+> 可能性の一つとして考えた為、再度作り直しRDSとの疎通を確認  
+#### curl -v telnet://[RDSインスタンスのエンドポイント]:[ポート番号]  
+通信は取れていいると表示  
+> - 接続時のコード記載  
+> ポート番号を指定する記述の方が確実と考え変更  
+#### `mysql -h mysql–instance1.123456789012.us-east-1.rds.amazonaws.com -P 3306 -u mymasteruser -p`  
+再度実行→成功
 
 
-
-
-***8.*** rails newコマンドでmysqlをdbに指定して作成  
-
-***9.*** mysql-devel mysql2のinstall  
->エラーが発生してmysqlをdbとして  
->使用できない状態  
->mysql-develをyumでinstallしてgemでmysqlをinstall（Gemfileにすでにある為bundle install）  
-
-***10.*** rails sの実行
->理由としてec2のセキュリティーグループにport番号 3000番を追加していなかった為 追加  
-
-***11.*** databese.ymlにmysql user/passを追加  
->アクセスできる環境になったが  
->エラーが発生mysql2のuser/passwordを確認してと表示  
->調べた結果 Config/detabase.yml内のusernameとpasswordを設定してほしいとのこと  
->mysqlにログインし別ユーザーを作成  
->権限はすべてできる設定  
-作成後 databese.ymlにユーザー名とパスワードを記載  
-
-***12.*** rails db:createの実行  
->再度 rails sを実行したが失敗  
->次はデータベースを作りましたか？と聞かれた為  
-rails db:createを実行し
->再度rails s→成功
-
-7番から１２番はかなり手間取りました！
+## 参考サイト
+## [RDSインスタンス作成](https://100webdesign.jp/services/web_knowhow/aws-site/web_knowhow-21162/)  
+## [RDS疎通確認](https://oji-cloud.net/2019/10/04/post-3184/)
+## [ログインコマンド](https://docs.aws.amazon.com/ja_jp/AmazonRDS/latest/UserGuide/USER_ConnectToInstance.html)
